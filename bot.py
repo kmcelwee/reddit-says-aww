@@ -63,16 +63,16 @@ def prepare_text(reddit_post, embedded=False):
 	t = str(reddit_post.title)
 	l = reddit_post.shortlink[8:]
 	if embedded:
-		r_text = '"' + t + '" ' + l + ' #aww ' + reddit_post.url
+		r_text = f'"{t}" {l} #aww {reddit_post.url}'
 	else:
-		r_text = '"' + t + '" ' + l + ' #aww'
+		r_text = f'"{t}" {l} #aww'
 	if len(r_text) > 280:
 		shorter = len(r_text) - 270
 		t_new = t[:-shorter]
 		if embedded:
-			return '"' + t_new + '..." ' + l + ' #aww ' + reddit_post.url
+			return f'"{t_new} ..." {l} #aww {reddit_post.url}'
 		else:
-			return '"' + t_new + '" ' + l + ' #aww'
+			return f'"{t_new}" {l} #aww'
 	else:
 		return r_text
 
