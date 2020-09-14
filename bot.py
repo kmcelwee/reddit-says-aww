@@ -25,7 +25,7 @@ def upload_image(image_url, quality=90):
 	"""
 
 	image_format = image_url.split('.')[-1]
-	image_file = 'test.' + image_format
+	image_file = 'latest_image.' + image_format
 	with open(image_file, 'wb') as f:
 		f.write(requests.get(image_url).content)
 
