@@ -35,31 +35,18 @@ twitter = tweepy.API(auth)
 
 
 def upload_image(image_url, quality=90):
-	"""
-	"""
+	"""Download an image from Reddit and upload to twitter. Return the media ID"""
 
 	image_format = image_url.split('.')[-1]
-	image_file = 'latest_image.' + image_format
+	image_file = f'latest_image.{image_format}'
 	with open(image_file, 'wb') as f:
 		f.write(requests.get(image_url).content)
 
-	images = [Image.open(image_file).convert('RGB')] if 'png' in image_url else [Image.open(image_file)]
-	
-	media_ids = []
-	for image in images:
-		img_io = BytesIO()
-
-		image.save(img_io, 'jpeg', quality=quality)
-		filename = "temp." + image_format
-		img_io.seek(0)
-
-		upload_res = twitter.media_upload(filename, file=img_io)
-		media_ids.append(upload_res.media_id)
-
-	return media_ids
+	return twitter.media_upload(image_file).media_id
 
 
 def prepare_text(reddit_post, embedded=False):
+	"""Shorten a reddit post's text if necessary, and append the embedded image URL and the #aww hashtag"""
 	t = str(reddit_post.title)
 	l = reddit_post.shortlink[8:]
 	if embedded:
@@ -79,9 +66,9 @@ def prepare_text(reddit_post, embedded=False):
 
 def make_post(reddit_post):
 	if reddit_post.url.split('.')[-1] in ['jpg', 'jpeg', 'png']:
-		media_ids = upload_image(reddit_post.url)
+		media_id = upload_image(reddit_post.url)
 		time.sleep(2)
-		tweet = twitter.update_status(prepare_text(reddit_post), media_ids=media_ids)
+		tweet = twitter.update_status(prepare_text(reddit_post), media_ids=[media_id])
 	else:
 		tweet = twitter.update_status(prepare_text(reddit_post, embedded=True))
 	return tweet.id
