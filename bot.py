@@ -106,18 +106,19 @@ def run_pipeline():
 	# Process IDs
 	print('Searching Reddit for latest popular posts.')
 	subs, already_tweeted = get_new_subs(already_tweeted)
-	print(f'{len(subs)} tweets in queue')
+	print(f'Tweets in queue: {len(subs)}')
 	for sub in subs:
-		print(f'\tTweeting Reddit post {sub.id}')
+		print(f'\tTweeting Reddit post: {sub.id}')
 		try:
 			tweet_id = make_post(sub)
 			print(f'{bcolors.OKGREEN}\t\t✔ Success! Posted tweet ID {tweet_id} {bcolors.ENDC}')
 		except Exception as err:
 			print(f'{bcolors.FAIL}\t\t✗ There was a problem posting {sub.id}{bcolors.ENDC}')
 			print(err)
-		print('\t\tSleeping for 60 seconds.')
-		time.sleep(60)
-	
+		if len(subs) != 1:
+			print('\t\tSleeping for 60 seconds.')
+			time.sleep(60)
+		
 	# Write out the existing reddit IDs
 	print('Writing existing tweets to a file.')
 	with open('already_tweeted.txt', 'w') as f:
