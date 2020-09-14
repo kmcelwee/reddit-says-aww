@@ -9,6 +9,9 @@ import os
 from io import BytesIO
 from PIL import Image
 
+
+TRANSFER_COUNT = 5
+
 # Load Reddit authorization
 reddit = praw.Reddit(client_id=os.environ['REDDIT_CLIENT_ID'], 
 	client_secret=os.environ['REDDIT_CLIENT_SECRET'], 
@@ -19,6 +22,7 @@ reddit = praw.Reddit(client_id=os.environ['REDDIT_CLIENT_ID'],
 auth = tweepy.OAuthHandler(os.environ['TWITTER_CONSUMER_KEY'], os.environ['TWITTER_CONSUMER_SECRET'])
 auth.set_access_token(os.environ['TWITTER_ACCESS_TOKEN'], os.environ['TWITTER_ACCESS_TOKEN_SECRET'])
 twitter = tweepy.API(auth)
+
 
 def upload_image(image_url, quality=90):
 	"""
@@ -44,6 +48,7 @@ def upload_image(image_url, quality=90):
 
 	return media_ids
 
+
 def prepare_text(reddit_post, embedded=False):
 	t = str(reddit_post.title)
 	l = reddit_post.shortlink[8:]
@@ -61,6 +66,7 @@ def prepare_text(reddit_post, embedded=False):
 	else:
 		return r_text
 
+
 def make_post(reddit_post):
 	if reddit_post.url.split('.')[-1] in ['jpg', 'jpeg', 'png']:
 		media_ids = upload_image(reddit_post.url)
@@ -69,31 +75,37 @@ def make_post(reddit_post):
 	else:
 		twitter.update_status(prepare_text(reddit_post, embedded=True))
 
+
 def get_new_subs(already_tweeted):
-	all_recent_subs = list(reddit.subreddit('aww').hot(limit=5))
+	all_recent_subs = list(reddit.subreddit('aww').hot(limit=TRANSFER_COUNT))
 
 	new_subs = [sub for sub in all_recent_subs if (sub.url.split('.')[-1] in ['jpg', 'jpeg', 'png']
 					or any([x in sub.url for x in ['imgur', 'gfycat']])) and sub.id not in already_tweeted]
 
 	already_tweeted += [s.id for s in new_subs]
-	if len(already_tweeted) > 100:
-		already_tweeted = already_tweeted[-50:]
-	print(already_tweeted)
 
 	return new_subs, already_tweeted
 
-def main():
-	already_tweeted = []
-	while True:
-		print('searching reddit...')
-		subs, already_tweeted = get_new_subs(already_tweeted)
-		for sub in subs:
-			try:
-				make_post(sub)
-			except:
-				print('problem posting: ' + str(sub.id))
-			time.sleep(60)
-		time.sleep(3600)
+
+def run_pipeline():
+	# Read in the existing reddit IDs
+	with open('already_tweeted.txt') as f:
+		already_tweeted = [x.strip() for x in f.readlines() if x]
+
+	# Process IDs
+	print('Searching Reddit...')
+	subs, already_tweeted = get_new_subs(already_tweeted)
+	for sub in subs:
+		try:
+			make_post(sub)
+		except Exception as err:
+			print('There was a problem posting: ' + str(sub.id))
+			print(err)
+		time.sleep(60)
+	
+	# Write out the existing reddit IDs
+	with open('already_tweeted.txt', 'w') as f:
+		f.write('\n'.join(already_tweeted))
 
 if __name__ == '__main__':
-	main()
+	run_pipeline()
