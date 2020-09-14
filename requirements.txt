@@ -1,0 +1,4 @@
+tweepy
+praw
+requests
+pillow >= 4
