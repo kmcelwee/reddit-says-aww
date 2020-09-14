@@ -22,7 +22,7 @@ jobs:
 
     - name: Run bot
       run: python bot.py
-      with:
+      env:
         REDDIT_CLIENT_SECRET: ${{ secrets.REDDIT_CLIENT_SECRET }}
         REDDIT_CLIENT_ID: ${{ secrets.REDDIT_CLIENT_ID }}
         REDDIT_USER_AGENT: ${{ secrets.REDDIT_USER_AGENT }}
