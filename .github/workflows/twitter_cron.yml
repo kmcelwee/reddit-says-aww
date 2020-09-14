@@ -1,7 +1,8 @@
 name: 
 
 on:
-  cron: '0 * * * *' # at the top of every hour
+  schedule:
+   - cron: '0 * * * *' # at the top of every hour
 
 jobs:
   validate:
