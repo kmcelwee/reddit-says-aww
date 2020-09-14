@@ -9,6 +9,16 @@ import os
 from io import BytesIO
 from PIL import Image
 
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
 
 TRANSFER_COUNT = 5
 
@@ -71,9 +81,10 @@ def make_post(reddit_post):
 	if reddit_post.url.split('.')[-1] in ['jpg', 'jpeg', 'png']:
 		media_ids = upload_image(reddit_post.url)
 		time.sleep(2)
-		twitter.update_status(prepare_text(reddit_post), media_ids=media_ids)
+		tweet = twitter.update_status(prepare_text(reddit_post), media_ids=media_ids)
 	else:
-		twitter.update_status(prepare_text(reddit_post, embedded=True))
+		tweet = twitter.update_status(prepare_text(reddit_post, embedded=True))
+	return tweet.id
 
 
 def get_new_subs(already_tweeted):
@@ -93,17 +104,22 @@ def run_pipeline():
 		already_tweeted = [x.strip() for x in f.readlines() if x]
 
 	# Process IDs
-	print('Searching Reddit...')
+	print('Searching Reddit for latest popular posts.')
 	subs, already_tweeted = get_new_subs(already_tweeted)
+	print(f'{len(subs)} tweets in queue')
 	for sub in subs:
+		print(f'\tTweeting Reddit post {sub.id}')
 		try:
-			make_post(sub)
+			tweet_id = make_post(sub)
+			print(f'{bcolors.OKGREEN}\t\t✔ Success! Posted tweet ID {tweet_id} {bcolors.ENDC}')
 		except Exception as err:
-			print('There was a problem posting: ' + str(sub.id))
+			print(f'{bcolors.FAIL}\t\t✗ There was a problem posting {sub.id}{bcolors.ENDC}')
 			print(err)
+		print('\t\tSleeping for 60 seconds.')
 		time.sleep(60)
 	
 	# Write out the existing reddit IDs
+	print('Writing existing tweets to a file.')
 	with open('already_tweeted.txt', 'w') as f:
 		f.write('\n'.join(already_tweeted))
 
