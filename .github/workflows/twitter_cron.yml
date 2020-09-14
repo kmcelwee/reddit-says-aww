@@ -21,3 +21,15 @@ jobs:
 
     - name: Run bot
       run: python bot.py
+    
+    - name: Commit files
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add already_tweeted.txt
+        git commit -m "Actions update"
+  
+    - name: Push changes
+      uses: ad-m/github-push-action@master
+      with:
+        github_token: ${{ secrets.SECRET_REPO_TOKEN }}
