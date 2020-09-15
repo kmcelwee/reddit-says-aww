@@ -33,10 +33,10 @@ jobs:
   
     - name: Commit files
       run: |
-        git config --local user.email "kevinrmcelwee@gmail.com"
+        git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
         git add already_tweeted.txt
-        git commit -m "Actions update"
+        git commit -m "Actions update" --allow-empty
   
     - name: Push changes
       uses: ad-m/github-push-action@master
