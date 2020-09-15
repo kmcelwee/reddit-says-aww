@@ -1,6 +1,3 @@
-"""
-"""
-
 import tweepy
 import praw
 import requests
@@ -10,7 +7,7 @@ from io import BytesIO
 from PIL import Image
 
 class bcolors:
-    """Quick class to clean up shell logs"""
+    """Quick class for cleaner shell logs"""
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
     OKGREEN = '\033[92m'
@@ -21,6 +18,16 @@ class bcolors:
     UNDERLINE = '\033[4m'
 
 class RedditTwitterPipeline():
+    """
+    A pipeline from Reddit to Twitter:
+    - pulls the top five posts from the given subreddit
+    - filters posts that've already been tweeted
+    - selects posts that have an image or contain Twitter-embeddable URLs.
+    - manipulates the text to follow Twitter's character limit
+    - posts to Twitter.
+
+    Expects environment variables to contain all secrets.
+    """
     def __init__(self, transfer_count=5, subreddit='aww'):
         """Configure the pipeline being connected and the APIs. Environment variables should already be defined."""
         self.subreddit = subreddit
@@ -40,7 +47,6 @@ class RedditTwitterPipeline():
 
     def upload_image(self, image_url, quality=90):
         """Download an image from Reddit and upload to twitter. Return the media ID"""
-
         image_format = image_url.split('.')[-1]
         image_file = f'latest_image.{image_format}'
         with open(image_file, 'wb') as f:
@@ -51,21 +57,21 @@ class RedditTwitterPipeline():
     
     def prepare_text(self, reddit_post, embedded=False):
         """Shorten a reddit post's text if necessary, and append the embedded image URL and the subreddit hashtag"""
-        t = str(reddit_post.title)
-        l = reddit_post.shortlink[8:]
+        reddit_title = str(reddit_post.title)
+        reddit_link = reddit_post.shortlink[8:]
         if embedded:
-            r_text = f'"{t}" {l} #{self.subreddit} {reddit_post.url}'
+            tweet_text = f'"{reddit_title}" {reddit_link} #{self.subreddit} {reddit_post.url}'
         else:
-            r_text = f'"{t}" {l} #{self.subreddit}'
-        if len(r_text) > 280:
-            shorter = len(r_text) - 270
-            t_new = t[:-shorter]
+            tweet_text = f'"{reddit_title}" {reddit_link} #{self.subreddit}'
+        if len(tweet_text) > 280:
+            shorter = len(tweet_text) - 270
+            t_new = reddit_title[:-shorter]
             if embedded:
-                return f'"{t_new} ..." {l} #{self.subreddit} {reddit_post.url}'
+                return f'"{t_new} ..." {reddit_link} #{self.subreddit} {reddit_post.url}'
             else:
-                return f'"{t_new}" {l} #{self.subreddit}'
+                return f'"{t_new}" {reddit_link} #{self.subreddit}'
         else:
-            return r_text
+            return tweet_text
 
 
     def make_post(self, reddit_post):
