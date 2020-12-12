@@ -837,3 +837,5 @@ kb16ad
 kb2skb
 kb46ud
 kb545v
+kba4x5
+kb8bcb
