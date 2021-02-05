@@ -1289,3 +1289,4 @@ lcc5sb
 lcew05
 lcmot1
 lcp963
+lcwik1
