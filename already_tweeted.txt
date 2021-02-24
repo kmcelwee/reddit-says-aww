@@ -1430,3 +1430,4 @@ lr2x1u
 lr8mrz
 lr3u45
 lrdp30
+lrj2rs
