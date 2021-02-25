@@ -1433,3 +1433,4 @@ lrdp30
 lrj2rs
 lro663
 lrv5p2
+lrs506
