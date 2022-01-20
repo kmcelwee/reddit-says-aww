@@ -3131,3 +3131,4 @@ s80rh6
 s84idt
 s86524
 s8g4mt
+s8kw6q
