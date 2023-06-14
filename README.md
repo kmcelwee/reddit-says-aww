@@ -1,4 +1,7 @@
 # Reddit Says Aww
+
+**Deprecated**: APIs are no longer free ☹️
+
 A Twitter bot ([@reddit_says_aww](https://twitter.com/reddit_says_aww/)) that brings the top-rated content from the [r/aww](https://www.reddit.com/r/aww) subreddit to Twitter. A standard cron job run by GitHub Actions executes `bot.py` hourly.
 
 To run a similar bot on your own device (perhaps for a different subreddit), you'll need to configure the following environment variables from the [Reddit API](https://www.reddit.com/dev/api/) and [Twitter API](https://developer.twitter.com/en/docs):
